@@ -1,0 +1,21 @@
+{
+    "short_name": "BJMP",
+    "name": "Bureau of Jail Management and Penology",
+    "icons": [
+      {
+        "src": "./img/icons/bjmp-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "./img/icons/bjmp-256x256.png",
+        "type": "image/png",
+        "sizes": "256x256"
+      }
+    ],
+    "start_url": "/",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#34343D"
+  }

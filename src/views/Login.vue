@@ -11,7 +11,7 @@
         <div class="max-w-md w-full">
           <div class="mt-2" >
             <h2 class="text-4xl tracking-wider text-bjmp-800">
-              Welcome to <span class="font-bold text-bjmp-900" > BJMP XII </span>
+              Welcome to <span class="font-bold text-bjmp-900" > BJMP XI </span>
             </h2>
             <p class="text-sm leading-5 text-gray-600" >
               Welcome back!, Please Sign in account to continue.
@@ -24,10 +24,10 @@
 
           <form class="my-8" @submit.prevent="login" >
             <div >
-              <input class="shadow bg-white appearance-none rounded-none border w-full px-4 py-5 text-gray-700 leading-tight order-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-md sm:leading-5" id="username" type="text" placeholder="Username">
+              <input v-model="form.username" class="shadow bg-white appearance-none rounded-none border w-full px-4 py-5 text-gray-700 leading-tight order-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-md sm:leading-5" id="username" type="text" placeholder="Username">
             </div>
             <div class="-mt-px">
-              <input class="shadow bg-white appearance-none rounded-none border w-full px-4 py-5 text-gray-700 leading-tight order-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-md sm:leading-5" id="password" type="password" placeholder="Password">
+              <input v-model="form.password" class="shadow bg-white appearance-none rounded-none border w-full px-4 py-5 text-gray-700 leading-tight order-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-md sm:leading-5" id="password" type="password" placeholder="Password">
             </div>
             <div class="flex items-center justify-between mt-8">
               <button type="submit" class="group relative w-full flex justify-center py-4 px-12 border border-transparent text-md leading-5 font-medium uppercase tracking-wider rounded-md text-white bg-bjmp-900 hover:bg-bjmp-800 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out">
@@ -47,16 +47,41 @@
 </template>
 
 <script>
+import Form from '@/utils/form'
+
 export default {
   name: "Login",
   data () {
     return {
-      visible: true
+      visible: true,
+      form: new Form({
+        username: '',
+        password: ''
+      })
     }
   },
   methods: {
     login () {
-      
+      this.form.$clearErrors()
+      this.form.$busy = true
+
+      this.$api.post('/auth/login', {
+        username: this.form.username,
+        password: this.form.password
+      })
+      .then(({ data }) => {
+        this.form.$busy = false
+        this.$store.commit('auth/setToken', data.data)
+        this.$router.replace({ name: 'about' })
+      })
+      .catch(err => {
+        this.form.$busy = false
+        if (err.response.status === 401) {
+          this.form.$setErrors({ password: err.response.data.message })
+        } else if (err.response.status === 422) {
+          this.form.$setErrors(err.response.data.errors)
+        }
+      })
     }
   }
 }
